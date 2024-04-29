@@ -16,7 +16,7 @@ int coffee(double Tv, double Tc, double Coefficient, int t, vector<double>& Coff
 
 double aproxA(vector<double> Coffee) {
 
-    double ETemperature = 0, Etime = 0, ETt = 0, Etemperature2 = 0;
+    double ETemperature = 0, Etime = 0, ETt = 0, Etime2 = 0;
     int len = Coffee.size(); //количество измерений
 
     for (int i = 0; i < len; i++) {
@@ -24,9 +24,9 @@ double aproxA(vector<double> Coffee) {
         Etime += i; //сумма по времени
 
         ETt += Coffee[i] * i; //сумма для произведения по оси температуры и времени
-        Etemperature2 += Coffee[i] * Coffee[i]; //сумма для квадрата температуры
+        Etime2 += i*i; //сумма для квадрата температуры
     }
-    return (len * ETt - (Etime * ETemperature)) / (len * Etemperature2 - ETemperature * ETemperature);
+    return (len * ETt - (Etime * ETemperature)) / (len * Etime2 - Etime * Etime);
 }
 
 double aproxB(vector<double> Coffee, double a) {
@@ -38,7 +38,7 @@ double aproxB(vector<double> Coffee, double a) {
         ETemperature += Coffee[i]; //сумма по температуре
         Etime += i; //сумма по времени
     }
-    return (Etime - a * ETemperature) / len;
+    return (ETemperature - a * Etime) / len;
 }
 
 double Correl(vector<double> Coffee) {
