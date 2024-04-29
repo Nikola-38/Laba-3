@@ -88,30 +88,37 @@ int phi(int n) {
     return result;
 }
 
-
 bool TestMiller(int n, int t, vector<int>& qi) {
     if (n == 2) return true;
     if (n < 2 || n % 2 == 0) return false;
 
     int n_minus_1 = n - 1;
     int m = factorizeCanonical(n_minus_1, qi);
-
+int result, result1;
+    
     if (n_minus_1 = 2 * m) {
         for (int j : qi) {
             for (int i = 0; i < t; i++) {
-                int a = getRandomNumber(2, n - 2); //случайное число a в диапазоне от 2 до n-2
+                int a = getRandomNumber(2, n - 1); //случайное число a в диапазоне от 2 до n-2
 
                 if (modPow(a, n_minus_1, n) == 1) { //первое условие
-                    return true;
+                    result1 = 1;
                 }
+                else return false;
+
+                if (modPow(a, n_minus_1, n) == 1) { //первое условие
+                    result1 = 1;
+                }
+                else return false;
 
                 //второе условие
                 int q_part = n_minus_1 / j; //(a^((n-1)/q)) mod n //Выбрать рандомное qi
-                int result = modPow(a, q_part, n);
+                result1 = modPow(a, q_part, n);
+                if(result != 1 || result1 != 1) break;;
             }
         }
     }
-    return false;
+    return true;
 }
 
 int NOD(int a, int b) {
@@ -126,44 +133,42 @@ int factorizeCanonicalFFF(int n, vector<int>& qi, int F, int& R) { // вычис
         }
         else {
             R *= qi[i];
+            if(R % 2 !=0){
+                R -=1 ;
+            }
         }
     }
     return F;
 }
 
+
 bool TestPoklingtona(int n, int t, vector<int>& qi, int F, int R) {
-    if (n == 2) return true;
-    if (n % 2 == 0 || n <= 1) return false;
+    if (n == 2 || n==5) return true;
+    if (n < 2 || n % 2 == 0) return false;
 
-    // Check if n is a very small prime
-    int n_minus_1 = n - 1;
-
-    if (n_minus_1 = R*F) {
-        for (int q : qi) {
-            bool foundNonTrivialSquareRoot = false;
-            for (int i = 0; i < t; i++) {
-                int a = getRandomNumber(2, n - 2); // Random number in the range [2, n-2]
-                int result = modPow(a, (n - 1) / q, n);
-
-                if (result != 1 && result != n - 1) {
-                    return false; // If a^((n-1)/q) mod n is not 1 or -1, n is composite
-                }
-                if (result != 1) {
-                    foundNonTrivialSquareRoot = true;
-                    break; // No need to check further for this q
-                }
+    bool Proverka = false;
+    for (int j=0; j < t; j++) {
+        int a = getRandomNumber(2,n-1);
+        if (modPow(a,n-1,n) != 1) {
+            return false;
+        }
+    
+         for (int q : qi) {
+                 if (modPow(a, (n-1)/q, n) == 1){
+                Proverka = false;
+                break;
             }
-            if (!foundNonTrivialSquareRoot) {
-                return false; // If no non-trivial square root is found for q, n is composite
+            else {
+                Proverka = true;
             }
         }
+        if (Proverka==true) return true; //вернёт составное
     }
-    return true; // If all q have a non-trivial square root, n is probably prime
+    return false;// вернёт простое
 }
 
-bool GOST(int t, int q1) {
-    int p = 0;
-
+bool GOST(int t, int q1, int& p) {
+    p = 0;
     while (true) {
         int N1 = ceil(pow(2, t - 1) / q1);
         int N2 = ceil(pow(2, t - 1) * 0 / (q1));
@@ -180,6 +185,7 @@ bool GOST(int t, int q1) {
             }
         }
     }
+
     return false;
 }
 
@@ -199,7 +205,7 @@ bool TestVeroyatnost(int n, int t, int R, int F) {
 }
 
 void InPut(int n, bool testResult, int k) {
-    if (testResult && k <= 10) {
+    if (testResult && k <= 5) {
         cout << n << " \t\t" << "+" << " \t\t" << k << endl;
     }
     else {
@@ -214,10 +220,9 @@ int main() {
 
     int t1 = 5;
     int k = 0;
-
-    int t = 4;
-    int q1 = 3;
-
+    int p;
+    int t = 7;
+    int q1 = 13;
 
     cout << "Number|\tProbabilistic test|\tCount rejected numbers" << endl;
     cout << "-------------------------------------------------------" << endl;
@@ -226,7 +231,7 @@ int main() {
         vector <int> qi;
         int F = 1;
 
-        int n = getRandomNumber(2, 500 - 2);
+        int n = getRandomNumber(2, 500 - 1);
         int n_minus_1 = n - 1;
         int R = 1;
         F = factorizeCanonicalFFF(n_minus_1, qi, F, R);
@@ -239,7 +244,7 @@ int main() {
             i--;
             continue;
         }
-        bool gostResult = GOST(t, q1);
+        bool gostResult = GOST(t, q1, p);
 
         bool veroyatnostResult = TestVeroyatnost(n, t1, R, F);
         InPut(n, veroyatnostResult, k);
@@ -248,5 +253,6 @@ int main() {
             k = 0;
         }
     }
+    cout << "GOST: " << p;
     return 0;
 }
